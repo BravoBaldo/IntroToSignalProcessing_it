@@ -1,6 +1,6 @@
 # IntroToSignalProcessing_it
 
-This is the first draft of the translation of the book "Pragmatic Introduction to Signal Processing" by prof. Tom O'Have
+This is the first draft of the translation of the book "Pragmatic Introduction to Signal Processing" by prof. Tom O'Haver
 (https://terpconnect.umd.edu/~toh/spectrum/TOC.html)
 
 ## Tools used:

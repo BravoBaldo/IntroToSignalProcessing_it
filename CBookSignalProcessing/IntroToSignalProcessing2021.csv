@@ -1,0 +1,44 @@
+western;  ;
+as;  ;
+NormaleWeb;  ;
+Titolo;  ;
+
+apple-converted-space; ;
+apple-style-span;  ;
+Collegamentoipertestuale;  ;
+Didascalia;  ;
+Enfasigrassetto;  ;
+fontstyle01;  ;
+nlm-given-names;  ;
+nlm-surname;  ;
+p;  ;
+Paragrafoelenco;  ;
+Pidipagina;  ;
+PreformattatoHTML;  ;
+Sommario1;  ;
+Sommario2;  ;
+Sommario3;  ;
+TableContents;  ;
+
+MacchinadascrivereHTML;  ;
+Teletype;  ;
+
+Textbody;  ;
+textbody0;  ;
+
+Quote       ;  ;
+Quotations;  ;
+
+Titolo1; \chapter{     ; }
+Heading 1; \chapter{     ; }
+Titolo2; \section{     ; }
+Heading 2; \section{     ; }
+Titolo2Carattere;  \section{     ; }
+Titolo3; \subsection{  ; }
+Heading 3; \subsection{  ; }
+Titolo3Carattere; \subsection{  ; }
+
+
+
+
+

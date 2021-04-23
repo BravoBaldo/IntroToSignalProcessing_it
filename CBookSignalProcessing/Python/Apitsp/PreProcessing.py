@@ -1,0 +1,305 @@
+
+# import re
+import os
+import filecmp
+import glob
+import time
+import csv
+
+
+def csv_search(lst, field_name):
+    idx = lst.index(field_name) if field_name in lst else 99
+    return idx
+
+
+def get_images_info(filename):
+    d = {line.split()[0]: line.split()[1:] for line in open(filename)}
+    return d
+
+
+def readcsv(filepathname):
+    maindict = {}
+    line_count = 0
+    with open(filepathname) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=';')  # , delimiter=' ', quotechar='|'
+        header = []
+        for row in csv_reader:
+            if line_count == 0:
+                header = row
+            else:
+                locdict = {}
+                for c in range(1, len(row)):
+                    print(f"{c}:{header[c]}:{row[c]}, ", end="")
+                    locdict[header[c]] = row[c]
+                maindict[row[0]] = locdict
+                print("")
+            line_count = line_count + 1
+    return maindict
+
+
+# Search a copy of a file
+def get_original(org_file_path, dest_path):
+    if filecmp.cmp(org_file_path, dest_path):
+        return dest_path  # Founded a copy in the original folder
+    return ""
+
+
+# Returns all images in a directory
+def get_images_in_directory(images_path):
+    matches = [".jpg", ".png", ".gif", "jpeg"]
+    dest_list = glob.glob(os.path.join(images_path, "*.*"))  # Lists all path
+    list_dest_images = []
+    for s in dest_list:
+        if any(xx in s.lower() for xx in matches):
+            list_dest_images.append(s)
+    return list_dest_images
+
+
+# Search the original file of a copy
+def searchFiles(DestList, FileToSearch):
+    for strng in DestList:
+        sSub = get_original(FileToSearch, strng)
+        if sSub != "":
+            return sSub
+    return ""
+
+
+def SearchFromTo2(sTest, iiA, sStart, sEnd):
+    iB = iC = -1
+    iB = sTest.find(sStart, iiA)
+    if iB >= 0:
+        iC = sTest.find(sEnd, iB)
+    return iB, iC
+
+
+def getImageInfo(sTest, iStart):
+    strStart = '\\includegraphics[width='
+    strEnd = '\\textwidth]'
+    strEnd2 = '}'
+    lenStart = len(strStart)
+    lenEnd = len(strEnd)
+    s1, s2 = SearchFromTo2(sTest, iStart, strStart, strEnd)
+    if s1 < 0 or s2 < 0:
+        return "", "", "", s1, -1
+    s3 = sTest.find(strEnd2, s2+lenEnd+1)
+
+    # a0 = sTest[:s1]
+    # aa = sTest[s1:s1+lenStart]
+    strImagSize = sTest[s1+lenStart:s2]
+    a2 = sTest[s2+lenEnd+1:s3]
+    # a3 = sTest[s3+1:]
+    # a4 = os.path.basename(a2)
+    ImagPath, ImagName = os.path.split(a2)
+    return ImagPath, ImagName, strImagSize, s1, s3+1
+
+
+def getHrefTextitInfo(sTest, iStart):
+    strStart = "\\href{"
+    strEnd = "}"
+    lenStart = len(strStart)
+    lenEnd = len(strEnd)
+    s1, s2 = SearchFromTo2(sTest, iStart, strStart, strEnd)
+    if s1 < 0 or s2 < 0:
+        return "", s1, -1
+    urlA = sTest[s1+lenStart:s2].strip()
+    # Piece = sTest[s1:]
+    pFrom = sTest[s1+lenStart+len(urlA)+lenEnd:]
+    # Remai = sTest[:s2]
+    # strStart2 = "{\\textit{"
+    # strEnd2 = "}}"
+    # strPre = "\\textit{\\url{"
+    # strPost =  "}}"
+    if pFrom.startswith("{\\textit{"):
+        strStart2 = "{\\textit{"
+        strEnd2 = "}}"
+        strPre = "\\textit{\\url{"
+        strPost = "}}"
+    else:
+        strStart2 = "{"
+        strEnd2 = "}"
+        strPre = "\\url{"
+        strPost = "}"
+
+    lenStart2 = len(strStart2)
+    lenEnd2 = len(strEnd2)
+
+    s3, s4 = SearchFromTo2(sTest, s2, strStart2, strEnd2)
+    if s3 < 0 or s4 < 0:
+        return "", s3, -1
+    urlB = sTest[s3+lenStart2:s4].strip()
+
+    if urlA.endswith("\\%20"):
+        urlA = urlA[:-4]
+
+    if urlB == "":
+        return "", s1, s4+lenEnd2
+
+    if urlA == urlB:    # urlB == "" or
+        # repla = sTest[:s1]
+        # replb = "\\textit{\\url{" + urlA + "}}"
+        # replc = sTest[s4 + lenEnd2:]
+        return strPre + urlA + strPost, s1, s4+lenEnd2
+    return "", s4, -1
+
+
+def move_at_end(xx, strto_find, strto_move, to_replace='%'):
+    if xx.find(strto_find) >= 0:
+        if to_replace == '%':
+            to_replace = strto_move
+        xx = xx.replace(strto_move, "") + "\n" + to_replace
+    return xx
+
+
+if __name__ == '__main__':
+    print('Tool for automatic preprocessing of "A Pragmatic Introduction to Signal Processing"')
+
+    # SPECTRUM path and other images already converted in png
+    SpectrumPath = ["F:/Dati/OmegaT/A Pragmatic Introduction to Signal Processing/Org/20210413/SPECTRUM/",
+                    "F:/Dati/OmegaT/A Pragmatic Introduction to Signal Processing/Org/GifPngImages/NotFound"
+                    ]
+
+    LocalPath = "C:/BookSignalProcessing/20210423/Eng/"    # Path of .tex file
+    filedicImages = "C:/BookSignalProcessing/xImagesDb.csv"
+    FileName = 'IntroToSignalProcessing2021'
+
+    dicImages = readcsv(filedicImages)
+    FileNotFound = os.path.join(LocalPath, "ImagesNotFound.txt")
+    if not LocalPath.endswith("/"):
+        LocalPath = LocalPath + "/"
+
+    spectrum_image_list = []
+    for path in SpectrumPath:
+        spectrum_image_list += get_images_in_directory(path)  # All images in Spectrum
+
+    TimeStart = time.time()
+    FilePath = os.path.join(LocalPath, FileName + ".tex")
+    FileOut = os.path.join(LocalPath, FileName + "_AUTO.tex")
+
+    fNotFound = open(FileNotFound, "w")
+
+    fOut = open(FileOut, "w", encoding="utf8")
+    f = open(FilePath, "r", encoding="utf8")
+    for x in f:
+        print(f"{x.strip()}", end="")
+
+        iA = 0
+        while True:
+            LurlA, LStart, iA = getHrefTextitInfo(x, iA)
+            if iA >= 0:
+                x = x[:LStart] + LurlA + x[iA:]
+            else:
+                break
+
+        images_to_remove = ["image5.png", "new.gif", "updated.gif"]
+
+        iA = 0
+        while True:
+            ImgPath, ImgName, strImgSize, qq, iA = getImageInfo(x, iA)
+            if iA >= 0 and (not strImgSize.startswith("#")):
+
+                if ImgPath.endswith("/word/media"):
+                    # sFilePath = os.path.join(LocalPath, "ImagesNotFound.txt")
+                    sFilePath = LocalPath + ImgPath + '/' + ImgName
+                    sFnd = searchFiles(spectrum_image_list, sFilePath)  # search original image in Spectrum
+                    if sFnd != '':
+                        ImgName = os.path.basename(sFnd)
+                    else:
+                        fNotFound.write(sFilePath + "\n")
+
+                img_size = "0.5"
+                img_inline = False
+                if ImgName in dicImages:
+                    img_size = dicImages[ImgName].get('Size', img_size) if dicImages[ImgName].get('Size', '') != '' else img_size
+                    img_inline = dicImages[ImgName].get('InLine', '') == 'N'  # if dicImages[ImgName].get('InLine', '') != '' else img_size
+
+                if ImgName in images_to_remove:
+                    command = ""
+                else:
+                    if ImgName.lower().endswith(".gif"):  # Tex require no gif
+                        ImgName = ImgName + '.png'
+
+                    command = '\\InsImageInline{' + img_size + '}{l}{' + ImgName + '}'
+                    if img_inline:
+                        command = '\\InsImage{' + img_size + '}{' + ImgName + '}'
+
+                x = x[:qq] + command + x[iA:]
+                iA = qq + len(command)
+            else:
+                break
+        print(f"")
+
+        to_rep = "\\texttt{\\textbf{amplitude*EXP(-1*((x-position)/(0.60056120439323*width))\\textasciicircum{}2)}}, "
+        x = x.replace(to_rep, "\n\n" + "\\begin{center}" + to_rep + "\\end{center}")
+
+        to_rep = "\\texttt{\\textbf{amplitude/(1+((x-position)/(0.5*width))\\textasciicircum{}2)}}."
+        x = x.replace(to_rep, "\n\n" + "\\begin{center}" + to_rep + "\\end{center}" + "\n\n")
+
+        to_find = "\\index{Spreadsheets!Signal arithmetic}\\InsImage"
+        to_move = "\\InsImageInline{0.5}{l}{PeakDetectionSpreadsheet.png}"
+        x = move_at_end(x, to_find, to_move)
+
+        to_find = "\\label{ref-0061}}"
+        to_move = "\\InsImageInline{0.6}{l}{SmoothWidthTest.gif.png}"
+        x = move_at_end(x, to_find, to_move)
+
+        to_find = "\\InsImageInline{0.5}{l}{PerfectFit.png}"
+        to_move = "\\InsImageInline{0.5}{l}{PerfectFit.png}"
+        x = move_at_end(x, to_find, to_move)
+
+        to_find = r"\InsImageInline{0.5}{l}{724px-Spetrophotometer-en.svg.png}"
+        to_move = r"\InsImageInline{0.5}{l}{724px-Spetrophotometer-en.svg.png}"
+        x = move_at_end(x, to_find, to_move)
+
+        to_find = r"\InsImageInline{0.5}{l}{image23.png}"
+        to_move = r"\InsImageInline{0.5}{l}{image23.png}"
+        x = move_at_end(x, to_find, to_move)
+
+        to_find = r"\InsImageInline{0.5}{l}{ClickButtons.png}"
+        to_move = r"\InsImageInline{0.5}{l}{ClickButtons.png}"
+        x = move_at_end(x, to_find, to_move)    # AAA: move_at_BEGIN
+
+        # This is a QRCODE!!!!!
+        to_find = r"\InsImageInline{0.5}{l}{image6.png}"
+        to_move = r"\InsImageInline{0.5}{l}{image6.png}"
+        to_repl = ""  # "\\qrcode[level=\\QRCodeQuality, height=2cm]{https://terpconnect.umd.edu/~toh/spectrum/functions.html}"
+        x = move_at_end(x, to_find, to_move, to_repl)
+
+        to_rep = "\\texttt{\\textbf{SQRT(2)*(}} \\textbf{RAND}\\texttt{\\textbf{()-}}\\textbf{RAND}\\texttt{\\textbf{()+}}\\textbf{RAND}\\texttt{\\textbf{()-}}\\textbf{RAND}\\texttt{\\textbf{()+}}\\textbf{RAND}\\texttt{\\textbf{()-}}\\textbf{RAND}\\texttt{\\textbf{())}}"
+        x = x.replace(to_rep, "\n\n" + "\\begin{center}" + to_rep + "\\end{center}" + "\n\n")
+
+        x = x.replace(r"{Matlab.gif.png}\href{", "{Matlab.gif.png}" + "\n~\\href{")
+        x = x.replace(r"{SmoothWidthTest.png}\href{", "{SmoothWidthTest.png}" + "\n~\\href{")
+        x = x.replace(r"{iSignalSmoothAnimation.gif.png}\href{", "{iSignalSmoothAnimation.gif.png}" + "\n~\\href{")
+        x = x.replace(r"{DerivativeDemoMedium.png}\href{", "{DerivativeDemoMedium.png}" + "\n~\\href{")
+        x = x.replace("\\textsuperscript{\\InsImageInline{0.5}{l}{FourierDivide.gif.png}}", "\\InsImageInline{0.5}{l}{FourierDivide.gif.png}")
+
+        x = x.replace(r"\textbf{A})\textsuperscript{\privateuse{}\privateuse{}}\textbf{A}", r"\textbf{A})\textsuperscript{${-}$1}\textbf{A}")
+        x = x.replace("\\textbf{C} = \\textbf{Ɛ}\\textsuperscript{\\privateuse{}\\privateuse{}}\\textbf{A}", "\\textbf{C} = \\textbf{Ɛ}\\textsuperscript{${-}$1}\\textbf{A}")
+        x = x.replace("\\textbf{M} = (\\textbf{A}\\textsuperscript{T}\\textbf{A})\\textsuperscript{\\privateuse{}\\privateuse{}}\\textbf{A}\textsuperscript{T}\textbf{C}", r"\textbf{M} = (\textbf{A}\textsuperscript{T}\textbf{A})\textsuperscript{${-}$1}\textbf{A}\textsuperscript{T}\textbf{C}")
+        x = x.replace(r"{square root of pi}\privateuse{}\privateuse{}", r"{square root of pi}, ")
+
+        x = x.replace(r"\InsImage{1.0}{Equation1.GIF.png}", r"\begin{center}$S_{j} = \frac{Y_{j-1} + Y_{j} + Y_{j+1}}{3}$\end{center}")
+        x = x.replace(r"\InsImage{1.0}{Equation2.GIF.png}", "\n\n" + r"\begin{center}$S_{j} = \frac{Y_{j-2} + 2Y_{j-1} + 3Y_{j} + 2Y_{j+1} + Y_{j+2}}{9}$\end{center}" + "\n\n")
+        x = x.replace(r"\InsImage{1.0}{DerivEquation1.GIF.png}", r"${Y_{j}}' = \frac{Y_{j+1} - Y_{j}}{X_{j+1} - X_{j}} = \frac{Y_{j+1} - Y_{j}}{\Delta X}\:\:\:\:\:\:\:\:\:\:{X_{j}}' = \frac{X_{j+1} - X_{j}}{2}$" + "\n\n")
+        x = x.replace(r"\InsImage{1.0}{DerivEquation2.GIF.png}", "${Y_{j}}' = \\frac{Y_{j+1} - Y_{j-1}}{2 \\Delta X}\\:\\:\\:\\:\\:\\:\\:{X_{j}}' = X_{j}$\n\n")
+        x = x.replace(r"\InsImage{1.0}{DerivEquation3.GIF.png}", "${Y_{j}}'' = \\frac{Y_{j+1} - 2Y_{j} + Y_{j-1}}{\\Delta X^{2}}\\:\\:\\:\\:\\:\\:\\:{X_{j}}' = X_{j}$\n\n")
+        # x = x.replace(r"\InsImage{1.0}{image14.png}", "")
+        x = x.replace(r"\InsImage{1.0}{Octave.gif.png}", r"\begin{center}\InsImage{1.0}{Octave.gif.png}\end{center}" + "\n\n")
+        x = x.replace(r"\href{http://www.mathworks.com/matlabcentral/fileexchange/authors/62607}{Diederick}", r"~\href{http://www.mathworks.com/matlabcentral/fileexchange/authors/62607}{Diederick}")
+
+        x = x.replace(r"\textbf{\InsImageInline{0.5}{l}{AnimatedDerivative.gif.png}}\href{", r"\InsImageInline{0.5}{l}{AnimatedDerivative.gif.png}" + "\n~\\href{")
+        #
+        #\InsImage{1.0}{SmoothingComparisonMultiplePeaksFigure3Noise01.png}
+        # x = x.replace("", "")
+
+
+        if x.find(r"\subsection{") >= 0:
+            x = x.replace(r".html\#Octave", r".html")
+
+        fOut.write(x)
+    f.close()
+    fOut.close()
+    fNotFound.close()
+
+    TimeEnd = time.time()
+    print(f"Duration: {TimeEnd - TimeStart}")

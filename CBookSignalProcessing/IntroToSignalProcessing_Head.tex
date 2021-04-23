@@ -1,0 +1,509 @@
+% docx2tex 1.6 --- ``The last thing your Word file sees before the recycle bin.'' 
+% 
+% docx2tex is Open Source and  
+% you can download it on GitHub: 
+% https://github.com/transpect/docx2tex 
+%  
+\newcommand{\LangUsed}{1}	% 0=English, 1=Italian				%Baldo
+\newif\ifLangEnglish
+% \LangEnglishtrue			% de-comment if English
+
+
+\documentclass[fontsize=12pt, paper=a4, pagesize, DIV=calc, twoside]{scrbook} 	%Baldo
+\usepackage[OT6,T2A,T1]{fontenc}	% Baldo: % Armenian, Russian, English
+\usepackage[utf8]{inputenc} 
+\usepackage{graphicx}
+%\usepackage{hyperref}
+\usepackage[bookmarksopen,bookmarksdepth=2,breaklinks=true]{hyperref}														%Baldo for long links
+ 
+\usepackage{multirow} 
+\usepackage{tabularx} 
+\usepackage{color} 
+\usepackage{textcomp} 
+\usepackage{tipa}
+\usepackage{amsmath} 
+\usepackage{amssymb} 
+\usepackage{amsfonts} 
+\usepackage{amsxtra} 
+\usepackage{wasysym} 
+\usepackage{isomath} 
+\usepackage{mathtools} 
+\usepackage{txfonts} 
+\usepackage{upgreek} 
+\usepackage{enumerate} 
+\usepackage{tensor} 
+\usepackage{pifont} 
+\usepackage{ulem} 
+\usepackage{xfrac} 
+\usepackage{soul}
+\usepackage{arydshln} 
+
+\ifLangEnglish
+	\usepackage[russian,italian,english]{babel}	% Baldo 	Note for English invert with Italian
+\else
+	\usepackage[russian,english,italian]{babel}	% Baldo 	Note for English invert with Italian
+\fi
+
+% \usepackage{animate}						% Baldo
+
+\definecolor{color-1}{rgb}{1,1,1}
+\definecolor{color-2}{rgb}{0.18,0.33,0.59}
+\definecolor{color-3}{rgb}{0.33,0.1,0.55}
+\definecolor{color-4}{rgb}{0.2,0.2,1}
+\definecolor{color-5}{rgb}{0.8,0,1}
+\definecolor{color-6}{rgb}{0,0.44,0.75}
+\definecolor{color-7}{rgb}{0.12,0.31,0.47}
+\definecolor{color-8}{rgb}{0,0,1}
+\definecolor{color-9}{rgb}{0.33,0.51,0.21}
+\definecolor{color-10}{rgb}{0,0,0.6}
+\definecolor{color-11}{rgb}{0.58,0.31,0.45}
+\definecolor{color-12}{rgb}{1,0,0}
+\definecolor{color-13}{rgb}{0.6,0,0}
+\definecolor{color-14}{rgb}{0,0.4,0}
+\definecolor{color-15}{rgb}{0.27,0.45,0.77}
+\definecolor{color-16}{rgb}{0.6,0.2,1}
+\definecolor{color-17}{rgb}{0.2,0.8,0}
+\definecolor{color-18}{rgb}{0,0,0.93}
+\definecolor{color-19}{rgb}{0.8,0,0}
+\definecolor{color-20}{rgb}{0,0.6,0}
+\definecolor{color-21}{rgb}{1,0,1}
+\definecolor{color-22}{rgb}{0.2,0,0.2}
+\definecolor{color-23}{rgb}{0.2,0.2,0.2}
+\definecolor{color-24}{rgb}{0,0.4,0.13}
+\definecolor{color-25}{rgb}{0.2,0.2,0.2}
+
+% ================= Baldo ===================
+%\usepackage{lmodern}
+%% \usepackage{mathptmx}					% Change font
+%\setkomafont{disposition}{\bfseries}	% Change font
+%\usepackage{microtype}					% Load the microtype package for better text justification.
+%\frenchspacing
+
+\hyphenation{s-cri-pt}			% I know, it's an error
+\usepackage[showframe]{geometry}	% for debug
+\usepackage{url}
+\Urlmuskip = 0mu plus 1mu\relax 	%for URLs too long
+\def\UrlBreaks{\do\/\do-}
+\urlstyle{rm}
+%%\renewcommand{\UrlFont}{\ttfamily\small}
+
+
+
+\newcommand{\QRCodeQuality}{H}	% QR Codes quality L, M, Q, H
+
+% --- No new page for Chapters - Start
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\scr@startchapter}{\if@openright\cleardoublepage\else\clearpage\fi}{}{}{}
+\makeatother
+% --- No new page for Chapters - E
+
+
+% --- Images Start ---
+\newcommand{\InsImage}[2]{	%\InsImage{Size}{Image}
+	{
+		\noindent
+		\includegraphics[width=#1\linewidth]{#2}
+}
+}
+
+\newcommand{\InsImageLink}[3]{	%\InsImageLink{Size}{Image}{Link}
+	\noindent
+	\ifx&#3&%
+		\includegraphics[width=#1\linewidth]{#2} 
+	\else%
+%		\href{\ifstrequal{#3}{*}{https://terpconnect.umd.edu/~toh/spectrum/#2}{#3}}{\includegraphics[width=#1\linewidth]{#2}}
+
+		\ifstrequal{#3}{*}%
+		{
+			\href{https://terpconnect.umd.edu/~toh/spectrum/#2}
+		}%
+		{
+			\href{#3}
+		}%
+		{
+			\includegraphics[width=#1\linewidth]{#2} 
+		}
+	\fi
+}
+
+
+\newcommand{\InsImageInline}[3] { 	% \InsImageInline{0.5}{l}{image9.png}
+\begin{wrapfigure}{#2}
+{#1\textwidth}
+%\begin{framed}
+\centering
+\vspace{-13pt}
+	\noindent
+\includegraphics[width=#1\textwidth]{#3}
+%\vspace{-30pt}
+%\caption{This is a comment!}
+%\end{framed}
+\end{wrapfigure}	
+}
+
+
+%	Parameter	Position
+%	h		Place the float here, i.e., approximately at the same point it occurs in the source text (however, not exactly at the spot)
+%	t		Position at the top of the page.
+%	b		Position at the bottom of the page.
+%	p		Put on a special page for floats only.
+%	!		Override internal parameters LaTeX uses for determining "good" float positions.
+%	H		Places the float at precisely the location in the LATEX code. Requires the float package, though may cause problems occasionally. This is somewhat equivalent to h!.
+\newcommand{\InsImageEx}[5]{  %	\InsImageEx{Name}{Size}{Position}{LabeL}{Caption}
+	\begin{figure}[#3]
+		\centering
+		\noindent
+		\includegraphics[width=#2\linewidth]{#1}
+		\ifx&#5&%
+			 % #1 is empty
+		\else
+			\caption{#5}
+		\fi
+		\label{#4}
+	\end{figure}
+}
+
+\usepackage{qrcode}
+
+\usepackage{setspace}
+\usepackage{graphbox}
+\usepackage{wrapfig, framed, caption}		% Wrapped figures
+\usepackage{etoolbox}
+
+%-- DropCap START---
+%\usepackage{ebgaramond}
+\usepackage{lettrine}
+\usepackage{xstring}
+
+\makeatletter
+\def\setIn#1{\@setIn#1\@nil}
+\def\@setIn#1#2\@nil
+{%
+	% \lettrine[nindent=0em, lines=4]{#1}{\,#2}%
+	\lettrine[nindent=0pt,findent=2pt]{#1}{\,#2}%
+}%
+
+%\makeatother
+% \makeatletter
+% \let\ltx@@chapter\@chapter
+%% \def\@chapter[#1]#2 #3 {\ltx@@chapter[#1]{#2}\lettrine[nindent=0em]{\StrLeft{#3}{1}}{\@gobble#3}\ }
+% \def\@chapter[#1]#2 #3 {\ltx@@chapter[#1]{#2}\setIn{#3}\ }
+% \makeatother
+
+
+%-- DropCap END ---
+
+% see https://terpconnect.umd.edu/~toh/spectrum/SPECTRUM.zip
+\graphicspath{	{F:/Dati/OmegaT/A Pragmatic Introduction to Signal Processing/Org/20210413/SPECTRUM}
+				{F:/Dati/OmegaT/A Pragmatic Introduction to Signal Processing/Org/GifPngImages}
+				{./IntroToSignalProcessing2021.docx.tmp/word/media}
+				{./\jobname.docx.tmp/word/media}
+		}
+
+\DeclareUnicodeCharacter{2055}{*}			% Baldo
+\DeclareUnicodeCharacter{0190}{$\mathcal{E}$}	% Baldo % LATIN CAPITAL LETTER OPEN E (u+2107 or rather u+0190)
+
+\newcommand{\armenian}{\fontencoding{OT6}\fontfamily{cmr}\selectfont}
+\DeclareTextFontCommand{\textarmenian}{\armenian}
+%\newcommand{\DifferentialD}{\mathrm{d}} % or just d % declare "\DifferentialD" --> "d"	%Unicode U+2146
+\newcommand{\DifferentialD}{d}			 % or just d % declare "\DifferentialD" --> "d"	%Unicode U+2146
+
+%\renewcommand{\topfraction}{0.9} 
+%\renewcommand{\blankpage}{\thispagestyle{empty} \quad \newpage} 
+\def\blankpage{%
+      \clearpage%
+      \thispagestyle{empty}%
+      \addtocounter{page}{-1}%
+      \null%
+      \clearpage}
+
+\newcommand{\theauthor}{Tom O'Haver}
+\ifLangEnglish
+	\newcommand{\thetitle}{Pragmatic Introduction to Signal~Processing}
+	\newcommand{\thesubtitle}{Applications in scientific measurement}
+	\newcommand{\theversion}{March 2021 edition
+
+
+	\title{\thetitle} \author{\theautho}
+}
+\else
+	\newcommand{\thetitle}{Introduzione Pratica al Signal~Processing}
+\newcommand{\thesubtitle}{Applicazioni nelle misure scientifiche}
+\newcommand{\theversion}{Edizione di aprile 2021
+
+\title{\thetitle} \author{\theautho}
+
+	(Trad. Ita: 10 aprile 2021
+ 
+%	file \jobname
+	
+%	{./\jobname.docx.tmp/word/media}
+}
+\fi
+
+
+% ===Baldo END====================
+\begin{document}
+
+% \ifnum \LangUsed=0 {Inglese} \else {Italiano}\fi.\\ \LangUsed
+
+%\ifLangEnglish
+%	English
+%\else
+%	Italiano
+%\fi
+
+
+% ===Baldo START===================
+\thispagestyle{empty}
+
+\begin{flushright}
+
+\vspace*{2.0in} 
+
+\begin{center}
+
+\begin{spacing}{3} {\huge \thetitle}\\ {\Large \thesubtitle} \end{spacing}
+
+\vspace*{1.0in} 
+
+\theversion
+
+\vspace{2.0in} 
+
+\ifLangEnglish
+	\resizebox{1\linewidth}{!}{An illustrated handbook with free software and spreadsheet templates to download.}
+\else
+	\resizebox{1\linewidth}{!}{Un manuale illustrato con software gratuito e fogli di calcolo da scaricare.}
+\fi
+
+
+\vfill
+
+\end{center}
+
+
+\end{flushright}
+
+%--verso------------------------------------------------------
+\blankpage
+
+%\blankpage
+
+%--title page--------------------------------------------------
+\pagebreak
+
+\thispagestyle{empty} 
+
+\begin{flushright}
+
+\vspace*{1.0in} 
+
+\begin{center}
+
+\begin{spacing}{3} {\huge \thetitle}\\ {\Large \thesubtitle} \end{spacing} 
+
+\vspace{0.25in} 
+
+\theversion
+
+\vspace{.5in} 
+
+\ifLangEnglish
+	A retirement project by
+\else
+Un progetto di
+\fi
+
+{\Large \theauthor\\ } 
+
+\ifLangEnglish
+	Professor Emeritus
+	
+	Department of Chemistry and Biochemistry
+	
+	The University of Maryland at College Park
+\else
+Professore Emerito
+
+Dipartimento di Chimica e Biochimica
+
+The University of Maryland at College Park
+\fi
+
+
+
+\vspace{0.5in} 
+
+%{\Large Kindle Direct Publishing}
+
+%{\small Naples, Florida}
+
+
+orcid.org/0000-0001-9045-1603
+\end{center}
+
+\begin{center}
+
+%\InsImage{0.3}{image2.png}
+
+% \InsImage{0.3}{image2.png}		% email
+
+\hypersetup{hidelinks}		% Hide boxes around links
+
+\qrcode[level=\QRCodeQuality, height=4cm]{BEGIN:VCARD
+VERSION:3.0
+N:Tom O'Haver
+ORG:University of Maryland
+EMAIL;TYPE=INTERNET:toh@umd.edu
+URL:https://terpconnect.umd.edu/~toh/
+ADR:;;College Pary;Maryland;USA
+END:VCARD}
+\end{center}
+
+\ifLangEnglish
+\else
+\begin{center}
+Traduzione italiana: Baldassarre Cesarano
+\end{center}
+\fi
+
+
+
+\vfill
+
+\end{flushright} 
+
+\pagebreak
+
+% Links and QRCodes
+
+\newcommand{\QRCodeResize}{1\linewidth - 3cm}
+
+\begin{center}
+\ifLangEnglish
+	{\Large{\textbf{Online access to the latest versions}}}
+\else
+{\Large{\textbf{Accesso online alle ultime versioni}}}
+\fi
+
+\end{center}
+
+\small{
+\begin{center}
+\ifLangEnglish
+	\textbf{Book in PDF format:}\\
+\else
+	\textbf{Libro in inglese in formato PDF:}\\
+\fi
+	\begin{tabular}{cl}
+%		\url{https://bit.ly/3mGm3fj}
+		\resizebox{\QRCodeResize}{!}{\url{https://terpconnect.umd.edu/~toh/spectrum/IntroToSignalProcessing2021.pdf}}
+			&	\qrcode[level=\QRCodeQuality, height=2cm]{https://terpconnect.umd.edu/~toh/spectrum/IntroToSignalProcessing2021.pdf}
+	\end{tabular}
+\end{center}
+
+\ifLangEnglish
+\else
+\begin{center}
+		\textbf{Libro in italiano in formato PDF:}\\
+	\begin{tabular}{rl}
+		\resizebox{\QRCodeResize}{!}{\url{https://github.com/BravoBaldo/IntroToSignalProcessing_it}}	&	\qrcode[level=\QRCodeQuality, height=2cm]{https://github.com/BravoBaldo/IntroToSignalProcessing_it}
+	\end{tabular}
+\end{center}
+\fi
+
+
+\begin{center}
+\ifLangEnglish
+	\textbf{Web address:}\\
+\else
+	\textbf{Indirizzo Web:}\\
+\fi
+	\begin{tabular}{rl}
+		% http://bit.ly/1NLOlLR
+		\resizebox{\QRCodeResize}{!}{\url{https://terpconnect.umd.edu/~toh/spectrum/index.html}}	&	\qrcode[level=\QRCodeQuality, height=2cm]{https://terpconnect.umd.edu/~toh/spectrum/index.html}
+	\end{tabular}
+\end{center}
+
+
+\begin{center}
+\ifLangEnglish
+	\textbf{Interactive Matlab Tools:}\\
+\else
+	\textbf{Tool Interattivi Matlab:}\\
+\fi
+	\begin{tabular}{rl}
+		% http://bit.ly/1r7oN7b
+		\resizebox{\QRCodeResize}{!}{\url{terpconnect.umd.edu/~toh/spectrum/SignalProcessingTools.html}}	&	\qrcode[level=\QRCodeQuality, height=2cm]{https://terpconnect.umd.edu/~toh/spectrum/SignalProcessingTools.html}
+	\end{tabular}
+\end{center}
+
+\begin{center}
+\ifLangEnglish
+	\textbf{Software download links:}\\
+\else
+	\textbf{Download del software:}\\
+\fi
+	\begin{tabular}{rl}
+		% http://tinyurl.com/cey8rwh
+		\resizebox{\QRCodeResize}{!}{\url{https://terpconnect.umd.edu/~toh/spectrum/functions.html}}			&	\qrcode[level=\QRCodeQuality, height=2cm]{https://terpconnect.umd.edu/~toh/spectrum/functions.html}
+	\end{tabular}
+\end{center}
+
+\begin{center}
+\ifLangEnglish
+	\textbf{Animated examples:}\\
+\else
+	\textbf{Esempi animati:}\\
+\fi
+	\begin{tabular}{rl}
+		\resizebox{1\linewidth - 3cm}{!}{\url{https://terpconnect.umd.edu/~toh/spectrum/ToolsZoo.html}}	&	\qrcode[level=\QRCodeQuality, height=2cm]{https://terpconnect.umd.edu/~toh/spectrum/ToolsZoo.html}
+	\end{tabular}
+\end{center}
+    }
+
+%\vfill
+
+\begin{center}
+\ifLangEnglish
+\textit{If you are reading this book on an Internet-connected computer or tablet, you can tap, click or Ctrl-Click on any of the page numbers in the text to jump directly to that page. If you this read this book within Microsoft Word 365, the GIF animations will run automatically; in the PDF version, you must click on links to view them. You can also click on the https addresses, on the names of downloadable software or on graphics to view, enlarge, or download those items.}
+\else
+\textit{Leggendo questo libro su un computer o un tablet connessi a Internet, si pu\`{o} toccare [Tap], o un Ctrl-Click su qualsiasi numero di pagina nel testo per saltare direttamente a quella pagina. Se si legge questo libro con Microsoft Word 365, le animazioni GIF verranno eseguite automaticamente; nella versione PDF, \`{e} necessario fare clic sui collegamenti per visualizzarli. \`{E} inoltre possibile cliccare sugli indirizzi https, sui nomi dei software scaricabili o sulle figure per visualizzare, ingrandire o scaricare tali elementi.}
+\fi
+\end{center}
+
+\begin{center}
+\ifLangEnglish
+	Have a question or suggestion? E-mail me at toh@umd.edu
+\else
+Ci sono domande o suggerimenti? Scrivere all'indirizzo toh@umd.edu
+\fi
+\end{center}
+
+\begin{center}
+\ifLangEnglish
+	Join our Facebook group: ``Pragmatic Signal Processing''
+\else
+C'\`{e} un gruppo Facebook a cui unirsi: ``Pragmatic Signal Processing''
+\fi
+\end{center}
+
+\pagebreak
+
+\ifLangEnglish
+\textbf{Acknowledgements}.  Thanks to M. Farooq Wahab for his many contributions and for many fruitful discussions, to Baldassarre Cesarano for his close reading and typographical correction of this text, to Dr. Raphael Atti\'{e} of NASA/Goddard Space Flight Center for corrections, to Diederick of The University of Hong Kong for code contributions, to Yuri Kalambet of Ampersand, Ltd., and to the many email correspondents who have made suggestions, asked questions, caught errors, and have shown me new types of data and new applications that have broadened the scope of this work.
+\else
+\textbf{Ringraziamenti}.  Grazie a M. Farooq Wahab per i suoi numerosi contributi e per molti fruttuosi discussioni, a Baldassarre Cesarano per la sua attenta lettura e correzione di questo testo, al Dr. Raphael Atti\'{e}, del NASA/Goddard Space Flight Center, per le correzioni, a Diederick dell'Universit\`{a} di Hong Kong per i contributi al codice, a Yuri Kalambet della Ampersand, Ltd., e ai molti corrispondenti via e-mail che hanno fornito suggerimenti, fatto domande, rilevato errori e mi hanno mostrato nuovi tipi di dati e nuove applicazioni che hanno ampliato la portata di questo lavoro.
+\fi
+
+% ===Baldo END====================
+
+
+%\textbf{Tabella dei Contenuti}
+%\textbf{Table of Contents}
+
+\tableofcontents
+
+\pagebreak

@@ -76,8 +76,8 @@
 %\usepackage{lmodern}
 %% \usepackage{mathptmx}					% Change font
 %\setkomafont{disposition}{\bfseries}	% Change font
-%\usepackage{microtype}					% Load the microtype package for better text justification.
-%\frenchspacing
+\usepackage{microtype}					% Load the microtype package for better text justification.
+\frenchspacing
 
 \hyphenation{s-cri-pt}			% I know, it's an error
 \usepackage[showframe]{geometry}	% for debug
@@ -100,11 +100,14 @@
 
 
 % --- Images Start ---
-\newcommand{\InsImage}[2]{	%\InsImage{Size}{Image}
-	{
-		\noindent
-		\includegraphics[width=#1\linewidth]{#2}
-}
+\newcommand{\InsImage}[2]{	%\InsImage{Size}{Image}%
+	{%
+		\noindent%
+		\begin{center}%
+			\includegraphics[width=#1\linewidth]{#2}%
+		\end{center}%
+	}%
+	\noindent%
 }
 
 \newcommand{\InsImageLink}[3]{	%\InsImageLink{Size}{Image}{Link}
@@ -115,17 +118,14 @@
 %		\href{\ifstrequal{#3}{*}{https://terpconnect.umd.edu/~toh/spectrum/#2}{#3}}{\includegraphics[width=#1\linewidth]{#2}}
 
 		\ifstrequal{#3}{*}%
-		{
-			\href{https://terpconnect.umd.edu/~toh/spectrum/#2}
+		{\href{https://terpconnect.umd.edu/~toh/spectrum/#2}}%
+		{\href{#3}}%
+		{%
+			\includegraphics[width=#1\linewidth]{#2}%
 		}%
-		{
-			\href{#3}
+	\fi%
+	\noindent%
 		}%
-		{
-			\includegraphics[width=#1\linewidth]{#2} 
-		}
-	\fi
-}
 
 
 \newcommand{\InsImageInline}[3] { 	% \InsImageInline{0.5}{l}{image9.png}
@@ -506,4 +506,5 @@ C'\`{e} un gruppo Facebook a cui unirsi: ``Pragmatic Signal Processing''
 
 \tableofcontents
 
+\vfill
 \pagebreak

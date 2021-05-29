@@ -73,6 +73,12 @@
 \definecolor{color-25}{rgb}{0.2,0.2,0.2}
 
 % ================= Baldo ===================
+\usepackage{tocloft}					% for TOF spacing
+\setlength{\cftfignumwidth}{2.55em}		% for TOF spacing
+%\renewcommand\cftloftitlefont{\Huge}	% controls the appeareance of the LoF title.
+\renewcommand\cftfigfont{\tiny}			% controls the appearance of the entry (and its preceeding number, if any).
+\renewcommand\cftfigpagefont{\small}	% This defines the font to be used for typesetting the page number.
+
 %\usepackage{lmodern}
 %% \usepackage{mathptmx}					% Change font
 %\setkomafont{disposition}{\bfseries}	% Change font
@@ -98,13 +104,18 @@
 \makeatother
 % --- No new page for Chapters - E
 
+\usepackage[font=scriptsize,labelfont=bf]{caption}	% for captionof, (scriptsize|footnotesize|small|normalsize|large|Large)
 
 % --- Images Start ---
 \newcommand{\InsImage}[2]{	%\InsImage{Size}{Image}%
 	{%
 		\noindent%
 		\begin{center}%
-			\includegraphics[width=#1\linewidth]{#2}%
+			\href{#2}{%
+				\includegraphics[width=#1\linewidth]{#2}%
+			}%
+			\captionof{figure}[\protect\detokenize{#2}]{\detokenize{#2}}%
+%			\captionof{figure}[short]{Caption}%
 		\end{center}%
 	}%
 	\noindent%
@@ -129,18 +140,22 @@
 
 
 \newcommand{\InsImageInline}[3] { 	% \InsImageInline{0.5}{l}{image9.png}
-\begin{wrapfigure}{#2}
-{#1\textwidth}
-%\begin{framed}
-\centering
-\vspace{-13pt}
-	\noindent
-\includegraphics[width=#1\textwidth]{#3}
-%\vspace{-30pt}
-%\caption{This is a comment!}
-%\end{framed}
-\end{wrapfigure}	
-}
+%\DeclareRobustCommand{\InsImageInline}[3] { 	% \InsImageInline{0.5}{l}{image9.png}
+	\begin{wrapfigure}{#2}%
+		{#1\textwidth}%
+%		\begin{framed}%
+			\centering%
+			\vspace{-13pt}%
+				\noindent%
+	\href{#3}{%
+		\includegraphics[width=#1\textwidth]{#3}%
+	}%
+%				\vspace{-30pt}%
+				\caption{\protect\detokenize{#3}}%
+%				\caption[Short version for LoF]{ This is a comment! }
+%		\end{framed}%
+	\end{wrapfigure}%	
+}%
 
 
 %	Parameter	Position
@@ -195,10 +210,10 @@
 %-- DropCap END ---
 
 % see https://terpconnect.umd.edu/~toh/spectrum/SPECTRUM.zip
-\graphicspath{	{F:/Dati/OmegaT/A Pragmatic Introduction to Signal Processing/Org/20210413/SPECTRUM}
+\graphicspath{	{F:/Dati/OmegaT/A Pragmatic Introduction to Signal Processing/Org/20210514/SPECTRUM}
 				{F:/Dati/OmegaT/A Pragmatic Introduction to Signal Processing/Org/GifPngImages}
-				{./IntroToSignalProcessing2021.docx.tmp/word/media}
-				{./\jobname.docx.tmp/word/media}
+				% {./IntroToSignalProcessing2021.docx.tmp/word/media}
+				% {./\jobname.docx.tmp/word/media}
 		}
 
 \DeclareUnicodeCharacter{2055}{*}			% Baldo
@@ -245,6 +260,8 @@
 
 % ===Baldo END====================
 \begin{document}
+
+\frontmatter	% Roman numbering
 
 % \ifnum \LangUsed=0 {Inglese} \else {Italiano}\fi.\\ \LangUsed
 
@@ -506,5 +523,8 @@ C'\`{e} un gruppo Facebook a cui unirsi: ``Pragmatic Signal Processing''
 
 \tableofcontents
 
+\listoffigures
+
 \vfill
 \pagebreak
+\mainmatter		% Normal numbering

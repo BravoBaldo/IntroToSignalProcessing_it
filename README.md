@@ -21,7 +21,7 @@ Download the whole site: [Spectrum zip](https://terpconnect.umd.edu/~toh/spectru
     (https://terpconnect.umd.edu/~toh/spectrum/SPECTRUM.zip)
     Unzip it in a directory
     
-### Modifications of the Engish .docx:
+### Modifications of the English .docx:
 * Centre the title!
 * Remove dropcaps (there is a word-macro for this) they will be restored after...
 * Replace all "^s" with " "		Unbrekable spaces to normal spaces

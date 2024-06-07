@@ -2,7 +2,8 @@
 
 This is the first draft of the translation of the book "Pragmatic Introduction to Signal Processing" by prof. Tom O'Haver
 (https://terpconnect.umd.edu/~toh/spectrum/TOC.html)
-...With some experiments for .tex conversion.
+
+ToDo: Some adaptions to A$ format...
 
 ## Tools used:
 * [OmegaT  v.5.7.1](https://omegat.org) - (but with [Okapi Filter: okapiFiltersForOmegaT-1.9-1.41.0](https://okapiframework.org/wiki/index.php/Okapi_Filters_Plugin_for_OmegaT)).
@@ -35,6 +36,8 @@ Download the whole site: [Spectrum zip](https://terpconnect.umd.edu/~toh/spectru
 
 ### Translate it
 (OmegaT)
+
+##Some experiments for .tex conversion.
 
 ### Conversion to Tex ()
 ...\docx2tex\d2t IntroToSignalProcessing2021.docx ..\..\IntroToSignalProcessing2021.csv .\Out
